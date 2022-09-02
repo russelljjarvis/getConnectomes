@@ -17,9 +17,17 @@
 # 
 # * We are going to move the needle backwards, and transform the network into networkx, this will facilitate a transformation to Julia JLD files.
 
+import glob
+import pprint
 import numpy as np
+import pandas as pd
 import h5dict
 from sonata.circuit import File
+import pandas as pd
+import tqdm
+import networkx as nx
+import matplotlib.pyplot as plt
+
 
 # ## Reading SONATA Network files
 
@@ -39,62 +47,40 @@ netv1 = File(data_files=['v1_nodes.h5',
 
 
 v1_edges = netv1.edges
-
-import pandas as pd
-import tqdm
-import networkx as nx
-import matplotlib.pyplot as plt
-import pickle
-import pandas as pd
-
-print('Edge populations in file: {0}'.format(v1_edges.population_names))
-
+print('Edge populations in file: {}'.format(v1_edges.population_names))
 for key in v1_edges.population_names:
     exec("g"+str(key)+str(" = nx.Graph()"))
     exec("this_name="+str("g")+str(key))
-    
-    break
-print('Edge populations in file: {0}'.format(len(netv1.edges[key])))
-v1_v1_dict = h5dict.File(str("AllenV1Murinexx")+str(key)+str(".hdf5"), "w") 
-#filters = {"compression": "lzf"}
+    temp = {}
+    for edge in tqdm.tqdm(netv1.edges[key]):        
+        if hasattr(edge,"plastic"):
+            temp["plastic"] = True
+        else:
+            temp["plastic"] = False 
+        if hasattr(edge,"delay"):
+            temp["delay"] = edge.delay
+        else:
+            temp["delay"] = False
 
-this_key = netv1.edges[key]
-#with open("file_crash_index.p","wb") as f:
-#    index__ = pickle.load(f)            
-
-#this_key(str(edge.source_node_id),str(edge.target_node_id))
-with open("file_crash_index.p","wb") as f:
-    for index,edge in tqdm.tqdm(enumerate(this_key)):   
-        #if index__ > index:    
-        if True:
-            temp = {}  
-            if hasattr(edge,"plastic"):
-                temp["plastic"] = True
-            else:
-                temp["plastic"] = False 
-            if hasattr(edge,"delay"):
-                temp["delay"] = edge.delay
-            else:
-                temp["delay"] = False
-            if hasattr(edge,"nsyns"):
-                temp["nsyns"] = edge.nsyns
-            else:
-                temp["nsyns"] = 1.0
-            if hasattr(edge,"syn_weight"): 
-                this_name.add_edge(str(edge.source_node_id),str(edge.target_node_id),weight=edge.syn_weight)        
-            else:
-                this_name.add_edge(str(edge.source_node_id),str(edge.target_node_id),weight=0.0)
-            for k,v in temp.items():
-                this_name.edges[str(edge.source_node_id),str(edge.target_node_id)][k] = v 
-            pickle.dump(index,f)            
- 
-v1_v1_dict["network"] = this_name
-v1_v1_dict.close()
-test_dict = h5dict.File(str("AllenV1Murine")+str(key)+str(".hdf5"), "r")    
-test_dict.tree_view(print_types=True)
-G = test_dict["network"]
-assert hasattr(G,"edges")
-v1_v1_dict.close()
+        if hasattr(edge,"nsyns"):
+            temp["nsyns"] = edge.nsyns
+        else:
+            temp["nsyns"] = 1.0
+        if hasattr(edge,"syn_weight"): 
+            this_name.add_edge(str(edge.source_node_id),str(edge.target_node_id),weight=edge.syn_weight)        
+        else:
+            this_name.add_edge(str(edge.source_node_id),str(edge.target_node_id),weight=0.0)
+        for k,v in temp.items():
+            this_name.edges[str(edge.source_node_id),str(edge.target_node_id)][k] = v 
+    v1_v1_dict = h5dict.File(str("AllenV1Murine")+str(key)+str(".hdf5"), "w") 
+    filters = {"compression": "lzf"}
+    v1_v1_dict["network",filters] = v1_v1_dict
+    v1_v1_dict.close()
+    test_dict = h5dict.File(str("AllenV1Murine")+str(key)+str(".hdf5"), "r")    
+    test_dict.tree_view(print_types=True)
+    G = test_dict["network"]
+    assert hasattr(G,"edges")
+    v1_v1_dict.close()
 
 
 
