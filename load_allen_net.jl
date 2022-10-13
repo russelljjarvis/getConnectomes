@@ -1,13 +1,16 @@
 using HDF5, FileIO
-#using Mmap
 using Revise
-#s = open("mmap_adj.bin", "w+")
 using SparseArrays
-
+#using Mmap
+#s = open("mmap_adj.bin", "w+")
+##
+# Download files link
+#https://cloudstor.aarnet.edu.au/plus/s/fFOrhM2ZrIAClZa
+##
 function get_full_arrays()
-    h5f = h5open("source_node_id.h5","r") 
+    h5f = h5open("v1_source_node_id.h5","r") 
     srcs = read(h5f["source_node_id"])
-    h5f = h5open("target_node_id.h5","r") 
+    h5f = h5open("v1_target_node_id.h5","r") 
     tgts = read(h5f["target_node_id"])
     close(h5f)
 
@@ -15,15 +18,15 @@ function get_full_arrays()
 end
 
 function get_weights_delays(begin_,end_)
-    h5f = h5open("node_id_e.h5","r") 
+    h5f = h5open("v1_node_id_e.h5","r") 
     enodes = Vector{Int64}(read(h5f["node_id_e"]))
-    h5f = h5open("node_id_i.h5","r") 
+    h5f = h5open("v1_node_id_i.h5","r") 
     inodes = Vector{Int64}(read(h5f["node_id_i"]))
-    h5f = h5open("syn_weight.h5","r") 
+    h5f = h5open("v1_syn_weight.h5","r") 
     syn_weights = read(h5f["syn_weight"])[begin_:end_]   
-    h5f = h5open("delay.h5","r") 
+    h5f = h5open("v1_delay.h5","r") 
     delays = read(h5f["delay"])[begin_:end_]   
-    h5f = h5open("nsyns.h5","r")
+    h5f = h5open("v1_nsyns.h5","r")
     nsyns = read(h5f["nsyns"])[begin_:end_]
     close(h5f)
 
