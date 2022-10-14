@@ -1,12 +1,12 @@
 using HDF5, FileIO
 using Revise
 using SparseArrays
-#using Mmap
-#s = open("mmap_adj.bin", "w+")
 ##
 # Download files link
 #https://cloudstor.aarnet.edu.au/plus/s/fFOrhM2ZrIAClZa
 ##
+
+download("https://cloudstor.aarnet.edu.au/plus/s/fFOrhM2ZrIAClZa")
 function get_full_arrays()
     """
     Int64 is used rather than Int32 because 70million is a big number and all values in between must be represented.
