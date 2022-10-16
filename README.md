@@ -3,3 +3,8 @@
 The kernel might crash in this big notebook so it has been converted to a regular Python file too.
 
 * [fly](https://github.com/russelljjarvis/getConnectomes/blob/main/DownloadFlyBrain.ipynb)
+
+* Instantiate connectome using Julia
+
+
+
